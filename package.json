@@ -1,0 +1,25 @@
+{
+  "name": "agent-voice",
+  "version": "0.0.1",
+  "description": "本地MCP服务，为开发Agent提供TTS语音播报能力",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "agent-voice": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch",
+    "test": "node --import tsx --test tests/**/*.test.ts",
+    "debug": "node --import tsx scripts/debug.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.16.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0"
+  }
+}
