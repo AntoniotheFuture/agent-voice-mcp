@@ -27,7 +27,6 @@ export class VoiceQueue {
   stop(): void {
     this.queue = [];
     this.engine.stop();
-    this.processing = false;
   }
 
   private async processQueue(): Promise<void> {
@@ -44,5 +43,9 @@ export class VoiceQueue {
     }
 
     this.processing = false;
+
+    if (this.queue.length > 0) {
+      this.processQueue();
+    }
   }
 }

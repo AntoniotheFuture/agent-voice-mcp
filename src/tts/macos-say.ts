@@ -72,7 +72,9 @@ export class MacOSSayEngine implements TTSEngine {
           .filter((line) => line.trim())
           .map((line) => {
             const parts = line.split(/\s+/);
-            return parts[0];
+            const langIdx = parts.findIndex((p) => /^[a-z]{2}_[A-Z]{2}$/.test(p));
+            if (langIdx === -1) return parts[0];
+            return parts.slice(0, langIdx).join(" ");
           })
           .filter(Boolean);
         resolve(voices);

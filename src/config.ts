@@ -19,9 +19,6 @@ export interface AgentVoiceConfig {
     need_interaction?: SceneConfig;
     milestone?: SceneConfig;
   };
-  serve?: {
-    port?: number;
-  };
 }
 
 const DEFAULT_CONFIG_PATH = path.join(os.homedir(), ".agent-voice", "config.json");
@@ -30,9 +27,6 @@ const DEFAULT_CONFIG: AgentVoiceConfig = {
   voice: undefined,
   rate: 175,
   volume: 1.0,
-  serve: {
-    port: 3000,
-  },
 };
 
 let cachedConfig: AgentVoiceConfig | null = null;
@@ -51,7 +45,7 @@ export function loadConfig(configPath?: string): AgentVoiceConfig {
     }
   }
 
-  cachedConfig = { ...DEFAULT_CONFIG, ...fileConfig, serve: { ...DEFAULT_CONFIG.serve, ...fileConfig.serve } };
+  cachedConfig = { ...DEFAULT_CONFIG, ...fileConfig };
   return cachedConfig;
 }
 

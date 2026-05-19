@@ -16,7 +16,7 @@ export function createTTSEngine(): TTSEngine {
       cachedEngine = new MacOSSayEngine();
       break;
     default:
-      throw new Error(`Unsupported platform: ${platform}. Only macOS is supported in v0.0.1.`);
+      throw new Error(`Unsupported platform: ${platform}. Only macOS (darwin) is supported.`);
   }
 
   return cachedEngine;
