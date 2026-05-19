@@ -116,7 +116,10 @@ describe("agent-voice MCP Server", () => {
 
     it("should resolve default options when nothing specified", async () => {
       const mod = await import("../dist/config.js");
-      const config = mod.loadConfig();
+      const config: import("../dist/config.js").AgentVoiceConfig = {
+        rate: 175,
+        volume: 1.0,
+      };
       const resolved = mod.resolveOptions(config);
       assert.strictEqual(resolved.rate, 175);
       assert.strictEqual(resolved.volume, 1.0);
@@ -168,6 +171,60 @@ describe("agent-voice MCP Server", () => {
       const resolved = mod.resolveOptions(config, "task_start");
       assert.strictEqual(resolved.rate, 175);
       assert.strictEqual(resolved.volume, 1.0);
+    });
+
+    it("should apply call-time emotion override", async () => {
+      const mod = await import("../dist/config.js");
+      const config = mod.loadConfig();
+      const resolved = mod.resolveOptions(config, undefined, { emotion: "angry", emotionIntensity: 0.8 });
+      assert.strictEqual(resolved.emotion, "angry");
+      assert.strictEqual(resolved.emotionIntensity, 0.8);
+    });
+
+    it("should apply scene emotion config", async () => {
+      const mod = await import("../dist/config.js");
+      const config: import("../dist/config.js").AgentVoiceConfig = {
+        rate: 175,
+        scenes: {
+          task_error: { emotion: "angry", emotionIntensity: 0.9 },
+        },
+      };
+      const resolved = mod.resolveOptions(config, "task_error");
+      assert.strictEqual(resolved.emotion, "angry");
+      assert.strictEqual(resolved.emotionIntensity, 0.9);
+    });
+
+    it("should let call-time emotion override scene emotion", async () => {
+      const mod = await import("../dist/config.js");
+      const config: import("../dist/config.js").AgentVoiceConfig = {
+        rate: 175,
+        scenes: {
+          task_complete: { emotion: "happy" },
+        },
+      };
+      const resolved = mod.resolveOptions(config, "task_complete", { emotion: "excited" });
+      assert.strictEqual(resolved.emotion, "excited");
+    });
+  });
+
+  describe("Emotion", () => {
+    let engine: Awaited<ReturnType<typeof import("../dist/tts/factory.js").createTTSEngine>>;
+
+    before(async () => {
+      const mod = await import("../dist/tts/factory.js");
+      engine = mod.createTTSEngine();
+    });
+
+    it("should speak with emotion without error", async () => {
+      await assert.doesNotReject(() => engine.speak("test", { emotion: "happy" }));
+    });
+
+    it("should speak with emotion and intensity without error", async () => {
+      await assert.doesNotReject(() => engine.speak("test", { emotion: "sad", emotionIntensity: 0.5 }));
+    });
+
+    it("should speak with neutral emotion without error", async () => {
+      await assert.doesNotReject(() => engine.speak("test", { emotion: "neutral" }));
     });
   });
 });

@@ -11,7 +11,7 @@ const voiceQueue = new VoiceQueue(engine);
 
 const server = new McpServer({
   name: "agent-voice",
-  version: "0.0.2",
+  version: "0.0.3",
 });
 
 server.registerTool(
@@ -27,10 +27,15 @@ server.registerTool(
         .enum(["task_start", "task_complete", "task_error", "need_interaction", "milestone"])
         .optional()
         .describe("播报场景类型，传入后自动应用该场景在配置中的音色/语速/音量"),
+      emotion: z
+        .enum(["neutral", "happy", "sad", "angry", "calm", "excited"])
+        .optional()
+        .describe("播报情感类型，不传则使用配置文件默认值（neutral为无情感）"),
+      emotionIntensity: z.number().min(0).max(1).optional().describe("情感强度，范围0-1，默认1.0"),
     },
   },
-  async ({ text, voice, rate, volume, scene }) => {
-    const resolved = resolveOptions(config, scene, { voice, rate, volume });
+  async ({ text, voice, rate, volume, scene, emotion, emotionIntensity }) => {
+    const resolved = resolveOptions(config, scene, { voice, rate, volume, emotion, emotionIntensity });
     voiceQueue.enqueue(text, resolved);
     return {
       content: [{ type: "text", text: `OK: queued "${text.slice(0, 50)}${text.length > 50 ? "..." : ""}"` }],

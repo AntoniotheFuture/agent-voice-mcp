@@ -1,11 +1,14 @@
 import { existsSync, readFileSync } from "fs";
 import path from "path";
 import os from "os";
+import type { EmotionType } from "./tts/interface.js";
 
 export interface SceneConfig {
   voice?: string;
   rate?: number;
   volume?: number;
+  emotion?: EmotionType;
+  emotionIntensity?: number;
 }
 
 export interface AgentVoiceConfig {
@@ -57,6 +60,8 @@ interface ResolvedOptions {
   voice?: string;
   rate?: number;
   volume?: number;
+  emotion?: EmotionType;
+  emotionIntensity?: number;
 }
 
 export function resolveOptions(
@@ -76,12 +81,16 @@ export function resolveOptions(
       if (sceneConfig.voice !== undefined) result.voice = sceneConfig.voice;
       if (sceneConfig.rate !== undefined) result.rate = sceneConfig.rate;
       if (sceneConfig.volume !== undefined) result.volume = sceneConfig.volume;
+      if (sceneConfig.emotion !== undefined) result.emotion = sceneConfig.emotion;
+      if (sceneConfig.emotionIntensity !== undefined) result.emotionIntensity = sceneConfig.emotionIntensity;
     }
   }
 
   if (override?.voice !== undefined) result.voice = override.voice;
   if (override?.rate !== undefined) result.rate = override.rate;
   if (override?.volume !== undefined) result.volume = override.volume;
+  if (override?.emotion !== undefined) result.emotion = override.emotion;
+  if (override?.emotionIntensity !== undefined) result.emotionIntensity = override.emotionIntensity;
 
   return result;
 }

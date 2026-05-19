@@ -1,7 +1,11 @@
+export type EmotionType = "neutral" | "happy" | "sad" | "angry" | "calm" | "excited";
+
 export interface TTSOptions {
   voice?: string;
   rate?: number;
   volume?: number;
+  emotion?: EmotionType;
+  emotionIntensity?: number;
 }
 
 export interface TTSEngine {
