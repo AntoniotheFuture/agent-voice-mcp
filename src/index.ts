@@ -3,7 +3,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import * as z from "zod/v4";
 import { createTTSEngine } from "./tts/factory.js";
 import { VoiceQueue } from "./voice-queue.js";
-import { loadConfig } from "./config.js";
+import { loadConfig, resolveOptions } from "./config.js";
 
 const config = loadConfig();
 const engine = createTTSEngine();
@@ -11,7 +11,7 @@ const voiceQueue = new VoiceQueue(engine);
 
 const server = new McpServer({
   name: "agent-voice",
-  version: "0.0.1",
+  version: "0.0.2",
 });
 
 server.registerTool(
@@ -20,17 +20,18 @@ server.registerTool(
     description: "通过TTS语音播报文本。语音播报不阻塞Agent执行，超出队列上限(2条)的历史语音将被丢弃。",
     inputSchema: {
       text: z.string().describe("要播报的文本内容"),
-      voice: z.string().optional().describe("TTS音色名称，不传则使用默认音色"),
-      rate: z.number().min(50).max(300).optional().describe("语速，范围50-300词/分钟，默认175"),
+      voice: z.string().optional().describe("TTS音色名称，不传则使用配置文件默认音色"),
+      rate: z.number().min(50).max(300).optional().describe("语速，范围50-300词/分钟，不传则使用配置文件默认值"),
+      volume: z.number().min(0).max(1).optional().describe("音量，范围0-1，不传则使用配置文件默认值"),
       scene: z
         .enum(["task_start", "task_complete", "task_error", "need_interaction", "milestone"])
         .optional()
-        .describe("播报场景类型"),
-      volume: z.number().min(0).max(1).optional().describe("音量，范围0-1，默认使用系统音量"),
+        .describe("播报场景类型，传入后自动应用该场景在配置中的音色/语速/音量"),
     },
   },
-  async ({ text, voice, rate, volume }) => {
-    voiceQueue.enqueue(text, { voice, rate, volume });
+  async ({ text, voice, rate, volume, scene }) => {
+    const resolved = resolveOptions(config, scene, { voice, rate, volume });
+    voiceQueue.enqueue(text, resolved);
     return {
       content: [{ type: "text", text: `OK: queued "${text.slice(0, 50)}${text.length > 50 ? "..." : ""}"` }],
     };

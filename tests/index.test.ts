@@ -111,6 +111,63 @@ describe("agent-voice MCP Server", () => {
       const config = mod.loadConfig();
       assert.ok(config);
       assert.ok(typeof config.rate === "number");
+      assert.ok(typeof config.volume === "number");
+    });
+
+    it("should resolve default options when nothing specified", async () => {
+      const mod = await import("../dist/config.js");
+      const config = mod.loadConfig();
+      const resolved = mod.resolveOptions(config);
+      assert.strictEqual(resolved.rate, 175);
+      assert.strictEqual(resolved.volume, 1.0);
+    });
+
+    it("should apply call-time override over config defaults", async () => {
+      const mod = await import("../dist/config.js");
+      const config = mod.loadConfig();
+      const resolved = mod.resolveOptions(config, undefined, { rate: 200, volume: 0.5 });
+      assert.strictEqual(resolved.rate, 200);
+      assert.strictEqual(resolved.volume, 0.5);
+    });
+
+    it("should apply scene config over global defaults", async () => {
+      const mod = await import("../dist/config.js");
+      const config: import("../dist/config.js").AgentVoiceConfig = {
+        rate: 175,
+        volume: 1.0,
+        scenes: {
+          task_error: { voice: "Bad News", rate: 150, volume: 0.8 },
+          task_start: { rate: 200 },
+        },
+      };
+      const resolved = mod.resolveOptions(config, "task_error");
+      assert.strictEqual(resolved.voice, "Bad News");
+      assert.strictEqual(resolved.rate, 150);
+      assert.strictEqual(resolved.volume, 0.8);
+    });
+
+    it("should let call-time override win over scene config", async () => {
+      const mod = await import("../dist/config.js");
+      const config: import("../dist/config.js").AgentVoiceConfig = {
+        rate: 175,
+        scenes: {
+          task_start: { rate: 200 },
+        },
+      };
+      const resolved = mod.resolveOptions(config, "task_start", { rate: 100 });
+      assert.strictEqual(resolved.rate, 100);
+    });
+
+    it("should use global default when scene not configured", async () => {
+      const mod = await import("../dist/config.js");
+      const config: import("../dist/config.js").AgentVoiceConfig = {
+        rate: 175,
+        volume: 1.0,
+        scenes: {},
+      };
+      const resolved = mod.resolveOptions(config, "task_start");
+      assert.strictEqual(resolved.rate, 175);
+      assert.strictEqual(resolved.volume, 1.0);
     });
   });
 });

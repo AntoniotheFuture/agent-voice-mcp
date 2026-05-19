@@ -1,4 +1,4 @@
-# agent-voice v0.0.1
+# agent-voice v0.0.2
 
 为开发 Agent 提供 TTS 语音播报能力的本地 MCP 服务。
 
@@ -47,11 +47,49 @@ npm run build
 ```json
 {
   "voice": "Tingting",
-  "rate": 200
+  "rate": 175,
+  "volume": 1.0
 }
 ```
 
-可用音色可通过 `get_voices` 工具查询。
+### 场景独立配置
+
+可为不同播报场景配置不同的音色、语速和音量。调用 `speak` 时传入 `scene` 参数即可自动应用：
+
+```json
+{
+  "voice": "Tingting",
+  "rate": 175,
+  "volume": 1.0,
+  "scenes": {
+    "task_start": {
+      "rate": 180
+    },
+    "task_complete": {
+      "rate": 160
+    },
+    "task_error": {
+      "voice": "Bad News",
+      "rate": 150,
+      "volume": 0.9
+    },
+    "need_interaction": {
+      "rate": 170
+    }
+  }
+}
+```
+
+### 优先级规则
+
+```
+调用时参数 > 场景配置 > 全局配置 > 内置默认值
+```
+
+- 最高优先：Agent 调用 `speak` 时显式传入的 `voice`/`rate`/`volume`
+- 次优先：配置文件中 `scenes.<scene>` 下的对应参数
+- 兜底：配置文件全局的 `voice`/`rate`/`volume`
+- 最终兜底：内置默认值（rate=175, volume=1.0）
 
 ## MCP 工具说明
 
@@ -63,8 +101,9 @@ npm run build
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | text | string | 是 | 要播报的文本 |
-| voice | string | 否 | 音色名称，默认系统音色 |
-| rate | number | 否 | 语速 50-300，默认 175 |
+| voice | string | 否 | 音色名称，不传则用配置文件 |
+| rate | number | 否 | 语速 50-300，不传则用配置文件 |
+| volume | number | 否 | 音量 0-1，不传则用配置文件 |
 | scene | string | 否 | 场景：task_start / task_complete / task_error / need_interaction / milestone |
 
 ### stop
@@ -102,4 +141,18 @@ agent-voice/
 ├── scripts/
 │   └── debug.ts           # 调试脚本
 └── dist/                  # 构建产物
+
+## 更新日志
+
+### v0.0.2
+- 支持通过配置文件设置全局 `volume`（音量）
+- 支持场景独立配置：`scenes.<scene>` 可为各场景指定不同的 voice/rate/volume
+- 参数优先级：调用时参数 > 场景配置 > 全局配置 > 内置默认值
+- speak 工具所有 TTS 参数均为可选，不传自动应用配置
+
+### v0.0.1
+- 初始版本，MCP Server 基础框架
+- macOS say 命令 TTS 驱动（177 个音色）
+- 非阻塞语音播报队列
+- speak / stop / get_voices 三个 MCP 工具
 ```
