@@ -25,7 +25,7 @@ export class MacOSSayEngine implements TTSEngine {
           resolvedOptions.voice = mapping.voice;
         }
         if (mapping.rateAdjust) {
-          const baseRate = resolvedOptions.rate ?? 175;
+          const baseRate = resolvedOptions.rate ?? 200;
           const adjusted = baseRate * (1 + (mapping.rateAdjust - 1) * intensity);
           resolvedOptions.rate = Math.max(50, Math.min(300, Math.round(adjusted)));
         }

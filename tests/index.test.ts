@@ -117,11 +117,11 @@ describe("agent-voice MCP Server", () => {
     it("should resolve default options when nothing specified", async () => {
       const mod = await import("../dist/config.js");
       const config: import("../dist/config.js").AgentVoiceConfig = {
-        rate: 175,
+        rate: 200,
         volume: 1.0,
       };
       const resolved = mod.resolveOptions(config);
-      assert.strictEqual(resolved.rate, 175);
+      assert.strictEqual(resolved.rate, 200);
       assert.strictEqual(resolved.volume, 1.0);
     });
 
@@ -136,7 +136,7 @@ describe("agent-voice MCP Server", () => {
     it("should apply scene config over global defaults", async () => {
       const mod = await import("../dist/config.js");
       const config: import("../dist/config.js").AgentVoiceConfig = {
-        rate: 175,
+        rate: 200,
         volume: 1.0,
         scenes: {
           task_error: { voice: "Bad News", rate: 150, volume: 0.8 },
@@ -152,7 +152,7 @@ describe("agent-voice MCP Server", () => {
     it("should let call-time override win over scene config", async () => {
       const mod = await import("../dist/config.js");
       const config: import("../dist/config.js").AgentVoiceConfig = {
-        rate: 175,
+        rate: 200,
         scenes: {
           task_start: { rate: 200 },
         },
@@ -164,12 +164,12 @@ describe("agent-voice MCP Server", () => {
     it("should use global default when scene not configured", async () => {
       const mod = await import("../dist/config.js");
       const config: import("../dist/config.js").AgentVoiceConfig = {
-        rate: 175,
+        rate: 200,
         volume: 1.0,
         scenes: {},
       };
       const resolved = mod.resolveOptions(config, "task_start");
-      assert.strictEqual(resolved.rate, 175);
+      assert.strictEqual(resolved.rate, 200);
       assert.strictEqual(resolved.volume, 1.0);
     });
 
@@ -184,7 +184,7 @@ describe("agent-voice MCP Server", () => {
     it("should apply scene emotion config", async () => {
       const mod = await import("../dist/config.js");
       const config: import("../dist/config.js").AgentVoiceConfig = {
-        rate: 175,
+        rate: 200,
         scenes: {
           task_error: { emotion: "angry", emotionIntensity: 0.9 },
         },
@@ -197,7 +197,7 @@ describe("agent-voice MCP Server", () => {
     it("should let call-time emotion override scene emotion", async () => {
       const mod = await import("../dist/config.js");
       const config: import("../dist/config.js").AgentVoiceConfig = {
-        rate: 175,
+        rate: 200,
         scenes: {
           task_complete: { emotion: "happy" },
         },

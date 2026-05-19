@@ -28,7 +28,7 @@ const DEFAULT_CONFIG_PATH = path.join(os.homedir(), ".agent-voice", "config.json
 
 const DEFAULT_CONFIG: AgentVoiceConfig = {
   voice: undefined,
-  rate: 175,
+  rate: 200,
   volume: 1.0,
 };
 

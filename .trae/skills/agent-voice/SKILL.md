@@ -24,7 +24,7 @@ mcp__agent-voice__speak(text="任务执行完成：<简短总结>", scene="task_
 ### 3. task_error — 任务错误/失败
 遇到编译错误、测试失败、运行时错误时：
 ```
-mcp__agent-voice__speak(text="任务执行出错：<错误简述>", scene="task_error", emotion="angry")
+mcp__agent-voice__speak(text="任务执行出错：<错误简述>", scene="task_error", emotion="calm")
 ```
 
 ### 4. need_interaction — 需要用户交互
@@ -45,7 +45,6 @@ mcp__agent-voice__speak(text="关键节点：<里程碑描述>", scene="mileston
 - `neutral` — 无情感，平铺直叙
 - `happy` — 开心的，语速稍快
 - `sad` — 伤心的，轻声细语
-- `angry` — 愤怒的，警告风格
 - `calm` — 平静的，舒缓柔和
 - `excited` — 兴奋的，语速快
 
@@ -57,7 +56,6 @@ mcp__agent-voice__speak(text="关键节点：<里程碑描述>", scene="mileston
 - **neutral**: 平铺直叙，客观描述
 - **happy**: 用积极词汇，可加 "👍"、"太好啦"
 - **sad**: 用缓和语气，可加 "😞"、"抱歉"
-- **angry**: 用紧迫词汇，可加 "⚠️"、"注意"
 - **calm**: 用轻柔语气，娓娓道来
 - **excited**: 用兴奋词汇，可加 "🎉"、"太棒了"
 
