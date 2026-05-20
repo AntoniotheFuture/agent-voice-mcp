@@ -413,6 +413,7 @@ v0.0.4+ 全面支持：
 - macOS say 不支持原生情感，通过音色切换（Whisper/Bad News）和语速调节模拟
 - 配置文件 scenes 支持 `emotion` 和 `emotionIntensity` 字段
 - SKILL.md 新增情感文本风格指引，Agent 根据情感生成不同风格播报文本
+- MCP 启动时自动播报"agent-voice 服务已启动"提示语
 - 新增 7 个测试用例（共 19 个）
 
 ### v0.0.2

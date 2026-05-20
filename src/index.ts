@@ -78,6 +78,9 @@ server.registerTool(
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
+
+  const resolved = resolveOptions(config);
+  engine.speak("agent-voice 服务已启动", resolved).catch(() => {});
 }
 
 main().catch((error) => {
