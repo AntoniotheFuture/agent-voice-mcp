@@ -84,4 +84,34 @@ describe("Cloud TTS Providers", () => {
       /Volcano TTS/
     );
   });
+
+  it("should synthesize with real Volcano credentials", { timeout: 20000 }, async () => {
+    const { loadConfig } = await import("../dist/config.js");
+    const path = await import("path");
+    const os = await import("os");
+    const configPath = path.join(os.homedir(), ".agent-voice", "debug-cloud.json");
+    const config = loadConfig(configPath);
+    const cloud = (config as unknown as Record<string, unknown>).cloud as Record<string, unknown> | undefined;
+
+    if (!cloud) {
+      assert.fail("No debug-cloud.json found at ~/.agent-voice/debug-cloud.json. Set it up with Volcano credentials.");
+      return;
+    }
+    if (!cloud.token || String(cloud.token).includes("${")) {
+      assert.fail("VOLCANO_TOKEN env var not set. Run: export VOLCANO_TOKEN=your-token");
+      return;
+    }
+
+    const provider = new VolcanoProvider({
+      provider: "volcano",
+      token: cloud.token as string,
+      appId: cloud.appId as string,
+      cluster: (cloud.cluster as string) || "volcano_tts",
+      voice: cloud.voice as string | undefined,
+      timeout: 15000,
+    });
+
+    const buffer = await provider.synthesize({ text: "你好，这是自动化测试。" });
+    assert.ok(buffer.length > 0, "Should return non-empty audio buffer");
+  });
 });
