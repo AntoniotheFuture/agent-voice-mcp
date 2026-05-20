@@ -1,5 +1,7 @@
 import { TTSEngine } from "./interface.js";
 import { MacOSSayEngine } from "./macos-say.js";
+import { WindowsSAPIEngine } from "./windows-sapi.js";
+import { LinuxEspeakEngine } from "./linux-espeak.js";
 import { PiperTTSEngine } from "./piper-tts.js";
 import os from "os";
 
@@ -17,17 +19,26 @@ export function createTTSEngine(options?: EngineOptions): TTSEngine {
   }
 
   const platform = os.platform();
-  const engineType = options?.engine || "say";
+  const engineType = options?.engine || platform;
 
-  if (platform === "darwin" && engineType === "piper") {
+  if (engineType === "piper") {
     cachedEngine = new PiperTTSEngine(options?.modelPath, options?.configPath);
     return cachedEngine;
   }
 
-  if (platform === "darwin") {
-    cachedEngine = new MacOSSayEngine();
-    return cachedEngine;
+  switch (platform) {
+    case "darwin":
+      cachedEngine = new MacOSSayEngine();
+      break;
+    case "win32":
+      cachedEngine = new WindowsSAPIEngine();
+      break;
+    case "linux":
+      cachedEngine = new LinuxEspeakEngine();
+      break;
+    default:
+      throw new Error(`Unsupported platform: ${platform}. Supported: darwin (macOS say), win32 (PowerShell SAPI), linux (espeak-ng). You can also use engine: "piper" on all platforms.`);
   }
 
-  throw new Error(`Unsupported platform: ${platform}. Only macOS (darwin) is supported.`);
+  return cachedEngine;
 }

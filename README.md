@@ -1,11 +1,11 @@
-# agent-voice v0.0.3
+# agent-voice v0.0.4
 
 为开发 Agent 提供 TTS 语音播报能力的本地 MCP 服务。在 Agent 的任务生命周期、关键节点、交互式询问时自动通过 TTS 语音提醒开发者，提升开发沉浸感和效率。
 
 ## 系统要求
 
 - **Node.js** >= 22
-- **操作系统**: macOS（支持两种引擎：系统内置 `say` 命令 / 开源神经网络 Piper TTS）
+- **操作系统**: macOS / Windows / Linux 全平台支持
 
 ## 快速开始
 
@@ -133,8 +133,8 @@ mcp__agent-voice__speak(text="关键节点：<里程碑描述>", scene="mileston
 
 | 配置项 | 类型 | 默认值 | 说明 |
 |--------|------|--------|------|
-| `engine` | string | `"say"` | TTS 引擎选择：`say`（macOS 系统）/ `piper`（神经网络离线） |
-| `voice` | string | 系统默认 | TTS 音色名称（say 引擎用音色名，piper 引擎用模型文件名） |
+| `engine` | string | 平台默认 | TTS 引擎选择：`"piper"`（跨平台神经网络），或不设置使用平台默认 |
+| `voice` | string | 系统默认 | TTS 音色名称（say 引擎用音色名，piper 引擎用模型路径，sapi/espeak 用语音标识） |
 | `rate` | number | 200 | 语速，范围 50-300 词/分钟 |
 | `volume` | number | 1.0 | 音量，范围 0-1 |
 | `modelPath` | string | - | Piper 引擎专用：.onnx 模型文件路径 |
@@ -248,6 +248,66 @@ curl -sL "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/zh/zh_CN/hu
 
 ---
 
+## Windows 语音引擎
+
+Windows 默认使用系统内置 SAPI (Speech API)，通过 PowerShell 驱动，**无需安装任何额外软件**。
+
+### 配置示例
+
+```json
+{
+  "voice": "Microsoft Huihui Desktop",
+  "rate": 200,
+  "volume": 0.8
+}
+```
+
+### 注意事项
+
+- Rate 映射：agent-voice 的 50-300 范围线性映射到 SAPI 的 -10 到 10
+- Volume 映射：agent-voice 的 0-1 映射到 SAPI 的 0-100
+- 语音列表通过 `get_voices` 获取，中文 Windows 通常有 Microsoft Huihui、Microsoft Kangkang 等
+- **不支持情感模拟**（emotion 参数无效果）
+
+---
+
+## Linux 语音引擎
+
+Linux 默认使用 espeak-ng 语音合成引擎，支持 100+ 种语言。
+
+### 安装 espeak-ng
+
+```bash
+# Debian/Ubuntu
+sudo apt install espeak-ng
+
+# Fedora
+sudo dnf install espeak-ng
+
+# Arch
+sudo pacman -S espeak-ng
+```
+
+### 配置示例
+
+```json
+{
+  "voice": "zh",
+  "rate": 200,
+  "volume": 0.8
+}
+```
+
+### 注意事项
+
+- `voice` 参数对应 espeak-ng 的语言代码，如 `zh`（中文）、`en`（英文）、`ja`（日文）
+- Rate 范围：80-450 词/分钟
+- Volume 映射：agent-voice 的 0-1 映射到 espeak-ng 的 0-100
+- **不支持情感模拟**（emotion 参数无效果）
+- 音色列表通过 `get_voices` 工具获取
+
+---
+
 ## 情感模拟
 
 macOS `say` 命令不支持原生情感参数，agent-voice 通过音色映射和语速调节模拟情感：
@@ -291,10 +351,12 @@ agent-voice/
 │   ├── config.ts          # 配置管理与参数解析
 │   ├── voice-queue.ts     # 非阻塞语音播报队列
 │   └── tts/
-│       ├── interface.ts   # TTS 抽象层接口
-│       ├── macos-say.ts   # macOS say 命令实现
-│       ├── piper-tts.ts   # Piper 神经网络引擎实现
-│       └── factory.ts     # TTS 引擎工厂（平台+配置选择）
+│       ├── interface.ts    # TTS 抽象层接口
+│       ├── macos-say.ts    # macOS say 命令实现
+│       ├── windows-sapi.ts # Windows SAPI (PowerShell) 实现
+│       ├── linux-espeak.ts # Linux espeak-ng 实现
+│       ├── piper-tts.ts    # Piper 神经网络引擎实现（跨平台）
+│       └── factory.ts      # TTS 引擎工厂（自动选择平台引擎）
 ├── tests/
 │   ├── index.test.ts      # MCP + say 引擎测试 (19 个)
 │   └── piper.test.ts      # Piper 引擎测试 (5 个)
@@ -328,11 +390,22 @@ agent-voice/
 
 ### Q: 支持 Windows/Linux 吗？
 
-当前版本仅支持 macOS。后续版本将支持更多平台的 TTS 引擎。
+v0.0.4+ 全面支持：
+- **macOS**: 系统内置 `say` 命令（零安装）
+- **Windows**: PowerShell SAPI（零安装）
+- **Linux**: espeak-ng（需 `apt install espeak-ng`）
+- **跨平台**: Piper 神经网络引擎（所有平台均支持）
 
 ---
 
 ## 更新日志
+
+### v0.0.4
+- **全平台支持**：新增 Windows SAPI 引擎（PowerShell，零安装）和 Linux espeak-ng 引擎
+- factory.ts 自动根据 `os.platform()` 选择对应引擎（darwin→say, win32→sapi, linux→espeak）
+- Piper 引擎提升为跨平台通用选项（`engine: "piper"` 所有平台均可用）
+- 配置文件 `engine` 字段改为可选，不设置则使用平台默认引擎
+- 新增 4 个源文件：windows-sapi.ts, linux-espeak.ts
 
 ### v0.0.3
 - 新增 `emotion` 情感参数：neutral/happy/sad/angry/calm/excited 六种情感
