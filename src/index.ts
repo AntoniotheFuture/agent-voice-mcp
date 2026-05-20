@@ -6,7 +6,11 @@ import { VoiceQueue } from "./voice-queue.js";
 import { loadConfig, resolveOptions } from "./config.js";
 
 const config = loadConfig();
-const engine = createTTSEngine();
+const engine = createTTSEngine({
+  engine: config.engine,
+  modelPath: config.modelPath,
+  configPath: config.configPath,
+});
 const voiceQueue = new VoiceQueue(engine);
 
 const server = new McpServer({

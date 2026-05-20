@@ -11,10 +11,15 @@ export interface SceneConfig {
   emotionIntensity?: number;
 }
 
+export type TTSEngineType = "say" | "piper";
+
 export interface AgentVoiceConfig {
+  engine?: TTSEngineType;
   voice?: string;
   rate?: number;
   volume?: number;
+  modelPath?: string;
+  configPath?: string;
   scenes?: {
     task_start?: SceneConfig;
     task_complete?: SceneConfig;
