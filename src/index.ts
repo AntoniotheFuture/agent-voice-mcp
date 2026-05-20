@@ -10,6 +10,7 @@ const engine = createTTSEngine({
   engine: config.engine,
   modelPath: config.modelPath,
   configPath: config.configPath,
+  cloud: config.cloud,
 });
 const voiceQueue = new VoiceQueue(engine);
 

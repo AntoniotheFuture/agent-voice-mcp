@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "fs";
 import path from "path";
 import os from "os";
 import type { EmotionType } from "./tts/interface.js";
+import type { CloudTTSConfig } from "./tts/cloud/types.js";
 
 export interface SceneConfig {
   voice?: string;
@@ -11,7 +12,7 @@ export interface SceneConfig {
   emotionIntensity?: number;
 }
 
-export type TTSEngineType = "say" | "piper";
+export type TTSEngineType = "say" | "piper" | "cloud";
 
 export interface AgentVoiceConfig {
   engine?: TTSEngineType;
@@ -20,6 +21,7 @@ export interface AgentVoiceConfig {
   volume?: number;
   modelPath?: string;
   configPath?: string;
+  cloud?: CloudTTSConfig;
   scenes?: {
     task_start?: SceneConfig;
     task_complete?: SceneConfig;

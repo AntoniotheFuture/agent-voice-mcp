@@ -1,0 +1,91 @@
+import { describe, it, before } from "node:test";
+import assert from "node:assert";
+
+describe("Cloud TTS Providers", () => {
+  let OpenAIProvider: typeof import("../dist/tts/cloud/providers/openai.js").OpenAIProvider;
+  let VolcanoProvider: typeof import("../dist/tts/cloud/providers/volcano.js").VolcanoProvider;
+  let CustomHTTPProvider: typeof import("../dist/tts/cloud/providers/custom.js").CustomHTTPProvider;
+
+  before(async () => {
+    const openaiMod = await import("../dist/tts/cloud/providers/openai.js");
+    OpenAIProvider = openaiMod.OpenAIProvider;
+    const volcanoMod = await import("../dist/tts/cloud/providers/volcano.js");
+    VolcanoProvider = volcanoMod.VolcanoProvider;
+    const customMod = await import("../dist/tts/cloud/providers/custom.js");
+    CustomHTTPProvider = customMod.CustomHTTPProvider;
+  });
+
+  it("should create OpenAI provider", () => {
+    const provider = new OpenAIProvider({ provider: "openai", apiKey: "sk-test" });
+    assert.strictEqual(provider.type, "openai");
+  });
+
+  it("should create Volcano provider", () => {
+    const provider = new VolcanoProvider({
+      provider: "volcano",
+      accessKey: "test-ak",
+      secretKey: "test-sk",
+      appId: "test-app",
+    });
+    assert.strictEqual(provider.type, "volcano");
+  });
+
+  it("should create CustomHTTP provider", () => {
+    const provider = new CustomHTTPProvider({
+      provider: "custom",
+      url: "https://example.com/tts",
+      bodyTemplate: '{"text":"{{text}}"}',
+    });
+    assert.strictEqual(provider.type, "custom");
+  });
+
+  it("should list OpenAI voices", async () => {
+    const provider = new OpenAIProvider({ provider: "openai", apiKey: "sk-test" });
+    const voices = await provider.getVoices();
+    assert.ok(voices.length > 0);
+    assert.ok(voices.includes("alloy"));
+    assert.ok(voices.includes("nova"));
+  });
+
+  it("should list Volcano voices", async () => {
+    const provider = new VolcanoProvider({
+      provider: "volcano",
+      accessKey: "ak",
+      secretKey: "sk",
+      appId: "app",
+    });
+    const voices = await provider.getVoices();
+    assert.ok(voices.length > 0);
+    assert.ok(voices.some((v) => v.startsWith("zh_")));
+  });
+
+  it("should throw error with invalid credentials", async () => {
+    const provider = new OpenAIProvider({ provider: "openai", apiKey: "sk-invalid", baseUrl: "https://invalid.example.com", timeout: 3000 });
+    await assert.rejects(
+      () =>
+        provider.synthesize({
+          text: "test",
+          voice: "alloy",
+        }),
+      /(OpenAI TTS|fetch failed|aborted|timeout)/i
+    );
+  });
+
+  it("should throw Volcano error with invalid credentials", async () => {
+    const provider = new VolcanoProvider({
+      provider: "volcano",
+      accessKey: "invalid",
+      secretKey: "invalid",
+      appId: "invalid",
+      timeout: 3000,
+    });
+    await assert.rejects(
+      () =>
+        provider.synthesize({
+          text: "test",
+          voice: "zh_female_qingrun",
+        }),
+      /Volcano TTS/
+    );
+  });
+});

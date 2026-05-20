@@ -3,6 +3,8 @@ import { MacOSSayEngine } from "./macos-say.js";
 import { WindowsSAPIEngine } from "./windows-sapi.js";
 import { LinuxEspeakEngine } from "./linux-espeak.js";
 import { PiperTTSEngine } from "./piper-tts.js";
+import { CloudTTSEngine } from "./cloud/engine.js";
+import type { CloudTTSConfig } from "./cloud/types.js";
 import os from "os";
 
 let cachedEngine: TTSEngine | null = null;
@@ -11,6 +13,7 @@ export interface EngineOptions {
   engine?: string;
   modelPath?: string;
   configPath?: string;
+  cloud?: CloudTTSConfig;
 }
 
 export function createTTSEngine(options?: EngineOptions): TTSEngine {
@@ -26,6 +29,14 @@ export function createTTSEngine(options?: EngineOptions): TTSEngine {
     return cachedEngine;
   }
 
+  if (engineType === "cloud") {
+    if (!options?.cloud) {
+      throw new Error('Cloud TTS engine requires "cloud" configuration');
+    }
+    cachedEngine = new CloudTTSEngine(options.cloud);
+    return cachedEngine;
+  }
+
   switch (platform) {
     case "darwin":
       cachedEngine = new MacOSSayEngine();
@@ -37,7 +48,7 @@ export function createTTSEngine(options?: EngineOptions): TTSEngine {
       cachedEngine = new LinuxEspeakEngine();
       break;
     default:
-      throw new Error(`Unsupported platform: ${platform}. Supported: darwin (macOS say), win32 (PowerShell SAPI), linux (espeak-ng). You can also use engine: "piper" on all platforms.`);
+      throw new Error(`Unsupported platform: ${platform}. Supported: darwin (macOS say), win32 (PowerShell SAPI), linux (espeak-ng). You can also use engine: "piper" or "cloud" on all platforms.`);
   }
 
   return cachedEngine;
