@@ -4,7 +4,7 @@ import { CustomHTTPProvider } from "../src/tts/cloud/providers/custom.js";
 import { loadConfig } from "../src/config.js";
 import type { CloudTTSConfig, VolcanoConfig, OpenAIConfig } from "../src/tts/cloud/types.js";
 import { writeFileSync } from "fs";
-import { execSync } from "child_process";
+import { spawn } from "child_process";
 import path from "path";
 import os from "os";
 
@@ -73,7 +73,7 @@ async function testVolcano(config: VolcanoConfig) {
     const outPath = path.join(os.tmpdir(), "debug-volcano-default.mp3");
     writeFileSync(outPath, buffer);
     console.log(`Saved: ${outPath}`);
-    playAudio(outPath);
+    await playAudio(outPath);
   } catch (err) {
     console.error("FAILED:", err instanceof Error ? err.message : err);
   }
@@ -92,7 +92,7 @@ async function testVolcano(config: VolcanoConfig) {
     const outPath = path.join(os.tmpdir(), "debug-volcano-custom.mp3");
     writeFileSync(outPath, buffer);
     console.log(`Saved: ${outPath}`);
-    playAudio(outPath);
+    await playAudio(outPath);
   } catch (err) {
     console.error("FAILED:", err instanceof Error ? err.message : err);
   }
@@ -125,7 +125,7 @@ async function testOpenAI(config: OpenAIConfig) {
     const outPath = path.join(os.tmpdir(), "debug-openai.mp3");
     writeFileSync(outPath, buffer);
     console.log(`Saved: ${outPath}`);
-    playAudio(outPath);
+    await playAudio(outPath);
   } catch (err) {
     console.error("FAILED:", err instanceof Error ? err.message : err);
   }
@@ -134,12 +134,12 @@ async function testOpenAI(config: OpenAIConfig) {
   process.exit(0);
 }
 
-function playAudio(filePath: string) {
-  try {
-    execSync(`afplay "${filePath}"`, { stdio: "ignore" });
-  } catch {
-    console.log("(afplay not available on this platform)");
-  }
+function playAudio(filePath: string): Promise<void> {
+  return new Promise((resolve) => {
+    const player = spawn("afplay", [filePath], { stdio: "inherit" });
+    player.on("close", () => resolve());
+    player.on("error", () => resolve());
+  });
 }
 
 function sleep(ms: number): Promise<void> {
