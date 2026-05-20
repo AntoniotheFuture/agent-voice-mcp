@@ -26,15 +26,14 @@ async function main() {
       '{\n' +
       '  "cloud": {\n' +
       '    "provider": "volcano",\n' +
-      '    "accessKey": "${VOLCANO_ACCESS_KEY}",\n' +
-      '    "secretKey": "${VOLCANO_SECRET_KEY}",\n' +
+      '    "token": "${VOLCANO_TOKEN}",\n' +
       '    "appId": "${VOLCANO_APP_ID}",\n' +
       '    "voice": "zh_female_qingrun",\n' +
       '    "timeout": 30000\n' +
       '  }\n' +
       '}\n\n' +
       "Then set env vars and run:\n" +
-      "  VOLCANO_ACCESS_KEY=xxx VOLCANO_SECRET_KEY=xxx VOLCANO_APP_ID=xxx npm run debug-cloud\n"
+      "  VOLCANO_TOKEN=xxx VOLCANO_APP_ID=xxx npm run debug-cloud\n"
     );
     process.exit(1);
   }
@@ -52,8 +51,7 @@ async function main() {
 }
 
 async function testVolcano(config: VolcanoConfig) {
-  console.log("Access Key:", config.accessKey ? `${config.accessKey.slice(0, 6)}...` : "(not set)");
-  console.log("Secret Key:", config.secretKey ? "***" : "(not set)");
+  console.log("Token:", config.token ? `${config.token.slice(0, 8)}...` : "(not set)");
   console.log("App ID:", config.appId || "(not set)");
   console.log("Voice:", config.voice || "zh_female_qingrun");
   console.log();

@@ -11,8 +11,7 @@ export interface OpenAIConfig {
 
 export interface VolcanoConfig {
   provider: "volcano";
-  accessKey: string;
-  secretKey: string;
+  token: string;
   appId: string;
   voice?: string;
   cluster?: string;
