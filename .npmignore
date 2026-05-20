@@ -1,0 +1,14 @@
+.trae/
+scripts/
+tests/
+*.test.ts
+tsconfig.json
+tsx.config.*
+node_modules/
+.git/
+.gitignore
+*.log
+.DS_Store
+debug-cloud.json
+debug-cloud.*.json
+*.tgz

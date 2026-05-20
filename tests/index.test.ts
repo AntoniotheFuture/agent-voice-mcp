@@ -63,6 +63,7 @@ describe("agent-voice MCP Server", () => {
     });
 
     it("should speak text without error", async () => {
+      await new Promise((resolve) => setTimeout(resolve, 3000));
       await assert.doesNotReject(() => engine.speak("test"));
     });
 
@@ -244,14 +245,17 @@ describe("agent-voice MCP Server", () => {
     });
 
     it("should speak with emotion without error", async () => {
+      await new Promise((resolve) => setTimeout(resolve, 3000));
       await assert.doesNotReject(() => engine.speak("test", { emotion: "happy" }));
     });
 
     it("should speak with emotion and intensity without error", async () => {
+      await new Promise((resolve) => setTimeout(resolve, 3000));
       await assert.doesNotReject(() => engine.speak("test", { emotion: "sad", emotionIntensity: 0.5 }));
     });
 
     it("should speak with neutral emotion without error", async () => {
+      await new Promise((resolve) => setTimeout(resolve, 3000));
       await assert.doesNotReject(() => engine.speak("test", { emotion: "neutral" }));
     });
   });

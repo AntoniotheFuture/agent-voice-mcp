@@ -85,8 +85,10 @@ describe("Cloud TTS Providers", () => {
     );
   });
 
-  it("should synthesize with real Volcano credentials", { timeout: 20000 }, async () => {
+  it("should speak with real Volcano credentials", { timeout: 20000 }, async () => {
+    await new Promise((resolve) => setTimeout(resolve, 3000));
     const { loadConfig } = await import("../dist/config.js");
+    const { CloudTTSEngine } = await import("../dist/tts/cloud/engine.js");
     const path = await import("path");
     const os = await import("os");
     const configPath = path.join(os.homedir(), ".agent-voice", "debug-cloud.json");
@@ -102,7 +104,7 @@ describe("Cloud TTS Providers", () => {
       return;
     }
 
-    const provider = new VolcanoProvider({
+    const engine = new CloudTTSEngine({
       provider: "volcano",
       token: cloud.token as string,
       appId: cloud.appId as string,
@@ -111,7 +113,6 @@ describe("Cloud TTS Providers", () => {
       timeout: 15000,
     });
 
-    const buffer = await provider.synthesize({ text: "你好，这是自动化测试。" });
-    assert.ok(buffer.length > 0, "Should return non-empty audio buffer");
+    await engine.speak("你好，这是自动化测试。");
   });
 });

@@ -1,4 +1,4 @@
-# agent-voice v0.0.4
+# agent-voice v0.0.5
 
 为 AI Agent 提供 TTS 语音播报能力的通用 MCP 服务。在 Agent 的任务生命周期、关键节点、交互式询问时自动通过 TTS 语音提醒用户。适用于 Trae、Claude Desktop、Cursor、WindSurf 等所有支持 MCP 的 Agent。
 
@@ -12,6 +12,14 @@
 ## 快速开始
 
 ### 1. 安装
+
+**方式一：npm 全局安装（推荐）**
+
+```bash
+npm install -g agent-voice
+```
+
+**方式二：手动安装**
 
 ```bash
 git clone https://github.com/AntoniotheFuture/agent-voice-mcp.git
@@ -49,6 +57,8 @@ npm run build
   }
 }
 ```
+
+> **注意**：如使用 npm 全局安装，可将 `args` 改为 `["$(npm root -g)/agent-voice/dist/index.js"]` 或使用完整路径。
 
 #### Claude Desktop 用户
 

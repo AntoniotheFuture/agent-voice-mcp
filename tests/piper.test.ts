@@ -25,6 +25,7 @@ describe("Piper TTS Engine", () => {
   });
 
   it("should speak text with piper without error", { timeout: 15000 }, async () => {
+    await new Promise((resolve) => setTimeout(resolve, 3000));
     const engine = new PiperTTSEngine(MODEL_PATH);
     await engine.speak("你好世界，这是Piper引擎测试");
   });
@@ -38,6 +39,7 @@ describe("Piper TTS Engine", () => {
   });
 
   it("should stop speech", { timeout: 15000 }, async () => {
+    await new Promise((resolve) => setTimeout(resolve, 3000));
     const engine = new PiperTTSEngine(MODEL_PATH);
     const speakPromise = engine.speak("这是一段较长的测试文本用于验证停止功能");
     await new Promise((resolve) => setTimeout(resolve, 200));
