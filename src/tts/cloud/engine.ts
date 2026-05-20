@@ -1,7 +1,7 @@
 import { writeFileSync, unlinkSync, existsSync } from "fs";
 import { tmpdir } from "os";
 import path from "path";
-import { spawn } from "child_process";
+import { spawn, ChildProcess } from "child_process";
 import { TTSEngine, TTSOptions } from "../interface.js";
 import { CloudTTSConfig, CloudTTSProvider, CloudProviderType } from "./types.js";
 import { OpenAIProvider } from "./providers/openai.js";
@@ -23,7 +23,7 @@ function createProvider(config: CloudTTSConfig): CloudTTSProvider {
 
 export class CloudTTSEngine implements TTSEngine {
   private provider: CloudTTSProvider;
-  private currentProcess: ReturnType<typeof spawn> | null = null;
+  private currentProcess: ChildProcess | null = null;
   private tempFile: string | null = null;
 
   constructor(config: CloudTTSConfig) {
@@ -59,7 +59,10 @@ export class CloudTTSEngine implements TTSEngine {
 
   private playAudio(filePath: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      const player = spawn("afplay", [filePath], { stdio: "inherit" });
+      const player = spawn("afplay", [filePath], {
+        detached: true,
+        stdio: "ignore",
+      });
       this.currentProcess = player;
 
       player.on("close", (code) => {

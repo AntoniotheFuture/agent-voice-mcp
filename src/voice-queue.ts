@@ -37,8 +37,8 @@ export class VoiceQueue {
       const item = this.queue.shift()!;
       try {
         await this.engine.speak(item.text, item.options);
-      } catch {
-        // voice play failure is non-fatal
+      } catch (err) {
+        console.error("Voice play failed:", err instanceof Error ? err.message : err);
       }
     }
 
