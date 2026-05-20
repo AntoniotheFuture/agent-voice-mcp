@@ -17,7 +17,7 @@ export class VolcanoProvider implements CloudTTSProvider {
       user: { uid: "agent-voice" },
       audio: {
         voice_type: voice,
-        encoding: "mp3",
+        encoding: "wav",
         rate: 24000,
         speed_ratio: params.rate ? params.rate / 200 : 1.0,
         volume_ratio: params.volume ?? 1.0,

@@ -4,7 +4,7 @@ import { CustomHTTPProvider } from "../src/tts/cloud/providers/custom.js";
 import { loadConfig } from "../src/config.js";
 import type { CloudTTSConfig, VolcanoConfig, OpenAIConfig } from "../src/tts/cloud/types.js";
 import { writeFileSync } from "fs";
-import { spawn } from "child_process";
+import { execSync } from "child_process";
 import path from "path";
 import os from "os";
 
@@ -70,10 +70,10 @@ async function testVolcano(config: VolcanoConfig) {
     const buffer = await provider.synthesize({ text: text1 });
     const elapsed = Date.now() - start;
     console.log(`OK: ${buffer.length} bytes, latency ${elapsed}ms`);
-    const outPath = path.join(os.tmpdir(), "debug-volcano-default.mp3");
+    const outPath = path.join(os.tmpdir(), "debug-volcano-default.wav");
     writeFileSync(outPath, buffer);
     console.log(`Saved: ${outPath}`);
-    await playAudio(outPath);
+    playAudio(outPath);
   } catch (err) {
     console.error("FAILED:", err instanceof Error ? err.message : err);
   }
@@ -89,10 +89,10 @@ async function testVolcano(config: VolcanoConfig) {
     const buffer = await provider.synthesize({ text: text2, voice, rate: 240 });
     const elapsed = Date.now() - start;
     console.log(`OK: ${buffer.length} bytes, latency ${elapsed}ms`);
-    const outPath = path.join(os.tmpdir(), "debug-volcano-custom.mp3");
+    const outPath = path.join(os.tmpdir(), "debug-volcano-custom.wav");
     writeFileSync(outPath, buffer);
     console.log(`Saved: ${outPath}`);
-    await playAudio(outPath);
+    playAudio(outPath);
   } catch (err) {
     console.error("FAILED:", err instanceof Error ? err.message : err);
   }
@@ -125,7 +125,7 @@ async function testOpenAI(config: OpenAIConfig) {
     const outPath = path.join(os.tmpdir(), "debug-openai.mp3");
     writeFileSync(outPath, buffer);
     console.log(`Saved: ${outPath}`);
-    await playAudio(outPath);
+    playAudio(outPath);
   } catch (err) {
     console.error("FAILED:", err instanceof Error ? err.message : err);
   }
@@ -134,12 +134,12 @@ async function testOpenAI(config: OpenAIConfig) {
   process.exit(0);
 }
 
-function playAudio(filePath: string): Promise<void> {
-  return new Promise((resolve) => {
-    const player = spawn("afplay", [filePath], { stdio: "inherit" });
-    player.on("close", () => resolve());
-    player.on("error", () => resolve());
-  });
+function playAudio(filePath: string) {
+  try {
+    execSync(`afplay "${filePath}"`, { stdio: "inherit", timeout: 10000 });
+  } catch {
+    console.log("(afplay not available)");
+  }
 }
 
 function sleep(ms: number): Promise<void> {

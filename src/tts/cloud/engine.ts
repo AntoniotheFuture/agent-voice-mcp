@@ -45,7 +45,7 @@ export class CloudTTSEngine implements TTSEngine {
         volume: options?.volume,
       });
 
-      const ext = ".mp3";
+      const ext = ".wav";
       const tempFile = path.join(tmpdir(), `agent-voice-cloud-${Date.now()}${ext}`);
       this.tempFile = tempFile;
       writeFileSync(tempFile, audioBuffer);
@@ -59,10 +59,7 @@ export class CloudTTSEngine implements TTSEngine {
 
   private playAudio(filePath: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      const player = spawn("afplay", [filePath], {
-        detached: true,
-        stdio: "ignore",
-      });
+      const player = spawn("afplay", [filePath], { stdio: "ignore" });
       this.currentProcess = player;
 
       player.on("close", (code) => {
