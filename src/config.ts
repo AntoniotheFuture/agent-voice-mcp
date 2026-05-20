@@ -41,15 +41,32 @@ const DEFAULT_CONFIG: AgentVoiceConfig = {
 
 let cachedConfig: AgentVoiceConfig | null = null;
 
-export function loadConfig(configPath?: string): AgentVoiceConfig {
-  if (cachedConfig) return cachedConfig;
+function resolveEnvVars(obj: unknown): unknown {
+  if (typeof obj === "string") {
+    return obj.replace(/\$\{([^}]+)\}/g, (_, name) => process.env[name] ?? `\${${name}}`);
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(resolveEnvVars);
+  }
+  if (obj !== null && typeof obj === "object") {
+    const result: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
+      result[key] = resolveEnvVars(value);
+    }
+    return result;
+  }
+  return obj;
+}
 
+export function loadConfig(configPath?: string): AgentVoiceConfig {
   const resolvedPath = configPath || DEFAULT_CONFIG_PATH;
+  if (!configPath && cachedConfig) return cachedConfig;
 
   let fileConfig: Partial<AgentVoiceConfig> = {};
   if (existsSync(resolvedPath)) {
     try {
       fileConfig = JSON.parse(readFileSync(resolvedPath, "utf-8"));
+      fileConfig = resolveEnvVars(fileConfig) as Partial<AgentVoiceConfig>;
     } catch {
       console.error(`Failed to parse config file: ${resolvedPath}, using defaults`);
     }

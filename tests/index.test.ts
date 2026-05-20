@@ -205,6 +205,34 @@ describe("agent-voice MCP Server", () => {
       const resolved = mod.resolveOptions(config, "task_complete", { emotion: "excited" });
       assert.strictEqual(resolved.emotion, "excited");
     });
+
+    it("should resolve ${ENV_VAR} in cloud config", async () => {
+      const { tmpdir } = await import("os");
+      const { writeFileSync, unlinkSync } = await import("fs");
+      process.env.TEST_API_KEY = "sk-test-secret-123";
+      process.env.TEST_APP_ID = "test-app-id";
+      const tmpFile = tmpdir() + "/agent-voice-env-test-" + Date.now() + ".json";
+      writeFileSync(tmpFile, JSON.stringify({
+        engine: "cloud",
+        cloud: {
+          provider: "openai",
+          apiKey: "${TEST_API_KEY}",
+          baseUrl: "https://${TEST_APP_ID}.example.com/v1",
+          timeout: 30000,
+        },
+        rate: 200,
+      }));
+
+      const mod = await import("../dist/config.js");
+      const config = mod.loadConfig(tmpFile);
+      const cloud = (config as unknown as Record<string, unknown>).cloud as Record<string, unknown>;
+      assert.strictEqual(cloud.apiKey, "sk-test-secret-123");
+      assert.strictEqual(cloud.baseUrl, "https://test-app-id.example.com/v1");
+
+      unlinkSync(tmpFile);
+      delete process.env.TEST_API_KEY;
+      delete process.env.TEST_APP_ID;
+    });
   });
 
   describe("Emotion", () => {
