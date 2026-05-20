@@ -81,7 +81,9 @@ async function main() {
   await server.connect(transport);
 
   const resolved = resolveOptions(config);
-  engine.speak("agent-voice 服务已启动", resolved).catch(() => {});
+  engine.speak("agent-voice 服务已启动", resolved).catch((err) => {
+    console.error("Startup announcement failed:", err instanceof Error ? err.message : err);
+  });
 }
 
 main().catch((error) => {

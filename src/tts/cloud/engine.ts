@@ -59,7 +59,7 @@ export class CloudTTSEngine implements TTSEngine {
 
   private playAudio(filePath: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      const player = spawn("afplay", [filePath], { stdio: "ignore" });
+      const player = spawn("afplay", [filePath], { stdio: "inherit" });
       this.currentProcess = player;
 
       player.on("close", (code) => {
