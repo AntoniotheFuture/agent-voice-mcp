@@ -11,7 +11,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "tsc --watch",
-    "test": "node --import tsx --test tests/cloud.test.ts tests/index.test.ts tests/piper.test.ts",
+    "test": "node --import tsx --test --test-concurrency=1 tests/cloud.test.ts tests/index.test.ts tests/piper.test.ts",
     "debug": "node --import tsx scripts/debug.ts",
     "debug-cloud": "node --import tsx scripts/debug-cloud.ts"
   },

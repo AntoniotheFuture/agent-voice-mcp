@@ -28,6 +28,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install espeak-ng for TTS tests
+        run: sudo apt-get update && sudo apt-get install -y espeak-ng
+
       - name: Type check
         run: npm run build
 

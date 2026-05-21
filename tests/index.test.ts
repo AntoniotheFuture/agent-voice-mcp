@@ -3,9 +3,21 @@ import assert from "node:assert";
 import { spawn } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import os from "node:os";
+import { execSync } from "node:child_process";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SERVER_PATH = path.resolve(__dirname, "../dist/index.js");
+
+const hasPlatformTts = (() => {
+  if (os.platform() === "darwin") return true;
+  if (os.platform() === "win32") return true;
+  try { execSync("which espeak-ng", { stdio: "ignore" }); return true; }
+  catch {
+    try { execSync("which espeak", { stdio: "ignore" }); return true; }
+    catch { return false; }
+  }
+})();
 
 async function sendMcpRequest(
   method: string,
@@ -56,13 +68,13 @@ describe("agent-voice MCP Server", () => {
       assert.ok(engine);
     });
 
-    it("should list available voices", async () => {
+    it("should list available voices", { skip: !hasPlatformTts ? "platform TTS binary not available" : false }, async () => {
       const voices = await engine.getVoices();
       assert.ok(Array.isArray(voices));
       assert.ok(voices.length > 0, "Should have at least one voice");
     });
 
-    it("should speak text without error", async () => {
+    it("should speak text without error", { skip: !hasPlatformTts ? "platform TTS binary not available" : false }, async () => {
       await new Promise((resolve) => setTimeout(resolve, 3000));
       await assert.doesNotReject(() => engine.speak("test"));
     });
@@ -244,17 +256,17 @@ describe("agent-voice MCP Server", () => {
       engine = mod.createTTSEngine();
     });
 
-    it("should speak with emotion without error", async () => {
+    it("should speak with emotion without error", { skip: !hasPlatformTts ? "platform TTS binary not available" : false }, async () => {
       await new Promise((resolve) => setTimeout(resolve, 3000));
       await assert.doesNotReject(() => engine.speak("test", { emotion: "happy" }));
     });
 
-    it("should speak with emotion and intensity without error", async () => {
+    it("should speak with emotion and intensity without error", { skip: !hasPlatformTts ? "platform TTS binary not available" : false }, async () => {
       await new Promise((resolve) => setTimeout(resolve, 3000));
       await assert.doesNotReject(() => engine.speak("test", { emotion: "sad", emotionIntensity: 0.5 }));
     });
 
-    it("should speak with neutral emotion without error", async () => {
+    it("should speak with neutral emotion without error", { skip: !hasPlatformTts ? "platform TTS binary not available" : false }, async () => {
       await new Promise((resolve) => setTimeout(resolve, 3000));
       await assert.doesNotReject(() => engine.speak("test", { emotion: "neutral" }));
     });
