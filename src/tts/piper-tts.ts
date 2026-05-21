@@ -3,6 +3,7 @@ import { unlinkSync, existsSync } from "fs";
 import { tmpdir } from "os";
 import path from "path";
 import { TTSEngine, TTSOptions } from "./interface.js";
+import { playAudioFile } from "./audio-player.js";
 
 function findPiperPath(): string {
   const home = process.env.HOME;
@@ -103,20 +104,13 @@ export class PiperTTSEngine implements TTSEngine {
           return;
         }
 
-        const player = spawn("afplay", [tempFile], { stdio: "ignore" });
-        this.currentProcess = player;
-
-        player.on("close", (playerCode) => {
+        playAudioFile(tempFile, (player) => {
+          this.currentProcess = player;
+        }).then(() => {
           this.currentProcess = null;
           this.cleanupTempFile();
-          if (playerCode === 0 || playerCode === null) {
-            resolve();
-          } else {
-            reject(new Error(`afplay exited with code ${playerCode}`));
-          }
-        });
-
-        player.on("error", (err) => {
+          resolve();
+        }).catch((err) => {
           this.currentProcess = null;
           this.cleanupTempFile();
           reject(err);

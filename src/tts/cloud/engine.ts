@@ -1,12 +1,13 @@
-import { writeFileSync, unlinkSync, existsSync } from "fs";
+import { writeFileSync, unlinkSync } from "fs";
 import { tmpdir } from "os";
 import path from "path";
-import { spawn, ChildProcess } from "child_process";
+import { ChildProcess } from "child_process";
 import { TTSEngine, TTSOptions } from "../interface.js";
 import { CloudTTSConfig, CloudTTSProvider, CloudProviderType } from "./types.js";
 import { OpenAIProvider } from "./providers/openai.js";
 import { VolcanoProvider } from "./providers/volcano.js";
 import { CustomHTTPProvider } from "./providers/custom.js";
+import { playAudioFile } from "../audio-player.js";
 
 function createProvider(config: CloudTTSConfig): CloudTTSProvider {
   switch (config.provider) {
@@ -57,27 +58,15 @@ export class CloudTTSEngine implements TTSEngine {
     }
   }
 
-  private playAudio(filePath: string): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      const player = spawn("afplay", [filePath], { stdio: "ignore" });
-      this.currentProcess = player;
-
-      player.on("close", (code) => {
-        this.currentProcess = null;
-        this.cleanupTempFile();
-        if (code === 0 || code === null) {
-          resolve();
-        } else {
-          reject(new Error(`afplay exited with code ${code}`));
-        }
+  private async playAudio(filePath: string): Promise<void> {
+    try {
+      await playAudioFile(filePath, (proc) => {
+        this.currentProcess = proc;
       });
-
-      player.on("error", (err) => {
-        this.currentProcess = null;
-        this.cleanupTempFile();
-        reject(err);
-      });
-    });
+    } finally {
+      this.currentProcess = null;
+      this.cleanupTempFile();
+    }
   }
 
   stop(): void {
@@ -91,9 +80,7 @@ export class CloudTTSEngine implements TTSEngine {
   private cleanupTempFile(): void {
     if (this.tempFile) {
       try {
-        if (existsSync(this.tempFile)) {
-          unlinkSync(this.tempFile);
-        }
+        unlinkSync(this.tempFile);
       } catch {
         // ignore cleanup errors
       }
