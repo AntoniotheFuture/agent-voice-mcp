@@ -1,6 +1,6 @@
 {
   "name": "agent-voice-mcp",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "本地MCP服务，为开发Agent提供TTS语音播报能力",
   "type": "module",
   "main": "dist/index.js",
