@@ -1,19 +1,20 @@
 {
-  "name": "agent-voice",
+  "name": "agent-voice-mcp",
   "version": "0.0.5",
   "description": "本地MCP服务，为开发Agent提供TTS语音播报能力",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "agent-voice": "dist/index.js"
+    "agent-voice-mcp": "dist/index.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node scripts/postbuild.mjs",
     "start": "node dist/index.js",
     "dev": "tsc --watch",
     "test": "node --import tsx --test --test-concurrency=1 tests/cloud.test.ts tests/index.test.ts tests/piper.test.ts",
     "debug": "node --import tsx scripts/debug.ts",
-    "debug-cloud": "node --import tsx scripts/debug-cloud.ts"
+    "debug-cloud": "node --import tsx scripts/debug-cloud.ts",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "mcp",
@@ -24,19 +25,25 @@
     "agent",
     "ai"
   ],
-  "author": "",
+  "author": "Antonio Liang",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/your-username/agent-voice.git"
+    "url": "git+https://github.com/AntoniotheFuture/agent-voice-mcp.git"
   },
   "bugs": {
-    "url": "https://github.com/your-username/agent-voice/issues"
+    "url": "https://github.com/AntoniotheFuture/agent-voice-mcp/issues"
   },
-  "homepage": "https://github.com/your-username/agent-voice#readme",
+  "homepage": "https://github.com/AntoniotheFuture/agent-voice-mcp#readme",
   "engines": {
     "node": ">=18.0.0"
   },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.17.0"
   },

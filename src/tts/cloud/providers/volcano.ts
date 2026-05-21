@@ -56,6 +56,11 @@ export class VolcanoProvider implements CloudTTSProvider {
       if (!audioBase64) throw new Error("Volcano TTS response missing audio data");
 
       return Buffer.from(audioBase64, "base64");
+    } catch (err) {
+      if (err instanceof Error && err.message.startsWith("Volcano TTS")) {
+        throw err;
+      }
+      throw new Error(`Volcano TTS: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       clearTimeout(timer);
     }
