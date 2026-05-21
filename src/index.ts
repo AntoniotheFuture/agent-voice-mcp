@@ -16,7 +16,7 @@ const voiceQueue = new VoiceQueue(engine);
 
 const server = new McpServer({
   name: "agent-voice",
-  version: "0.0.4",
+  version: "1.0.0",
 });
 
 server.registerTool(
